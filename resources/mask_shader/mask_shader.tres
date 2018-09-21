@@ -1,0 +1,56 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[sub_resource type="Shader" id=1]
+
+code = "shader_type canvas_item;
+
+uniform vec2 point_begin;
+uniform vec2 point_end;
+uniform bool will_cull_begin = false;
+uniform bool will_cull_end = false;
+uniform bool has_begin_cap = false;
+uniform float line_length = 1.0;
+
+void fragment(){
+	//Get line length
+	float line_length_func = 1.0;
+	if (has_begin_cap){
+		line_length_func = line_length+0.5;
+	}
+	else{
+		line_length_func = line_length+0.0;
+	}
+	//Get logical angles
+	float log_ang_begin = point_begin.x/point_begin.y;
+	float log_ang_end = point_end.x/point_end.y;
+	
+	COLOR = texture(TEXTURE, UV);
+	
+	// Culling for begining of line
+	float image_begin_offset = log_ang_begin/2.0;
+	float pixel_uv_begin = UV.x;
+	if ( will_cull_begin && (pixel_uv_begin+image_begin_offset)/log_ang_begin < UV.y && UV.x <= line_length_func/2.0 ) { //  
+		COLOR.a = 0.0;
+	}
+	// Culling for end of line
+	float image_end_offset = log_ang_end/2.0;
+	float pixel_uv_end = (UV.x-line_length_func)*-1.0;
+	if ( will_cull_end && (pixel_uv_end+image_end_offset)/log_ang_end < UV.y && UV.x >= line_length_func/2.0 ) {
+		COLOR.a = 0.0;
+	}
+	
+}"
+_sections_unfolded = [ "Resource" ]
+
+[resource]
+
+render_priority = 0
+shader = SubResource( 1 )
+shader_param/point_begin = Vector2( 276.612, 330.64 )
+shader_param/point_end = Vector2( -284.133, -355.122 )
+shader_param/will_cull_begin = true
+shader_param/will_cull_end = true
+shader_param/has_begin_cap = false
+shader_param/line_length = 7.10626
+_sections_unfolded = [ "Resource", "shader_param" ]
+
